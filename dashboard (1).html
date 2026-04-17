@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anchor — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;0,900;1,400&family=Cabinet+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0e0c0a;
+      --surface: #161210;
+      --surface2: #1e1a16;
+      --border: rgba(255,235,200,0.07);
+      --border2: rgba(255,235,200,0.14);
+      --text: #f5ede0;
+      --text-muted: #8a7d6e;
+      --text-dim: #5a5047;
+      --gold: #e8a832;
+      --gold2: #f5c860;
+      --coral: #e8694a;
+      --success: #3ecf8e;
+    }
+
+    body {
+      font-family: 'Cabinet Grotesk', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 200px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 1.75rem 1.25rem;
+      gap: 2rem;
+    }
+
+    .logo {
+      font-family: 'Fraunces', serif;
+      font-weight: 900;
+      font-size: 1.6rem;
+      letter-spacing: -0.03em;
+    }
+
+    .logo span { color: var(--gold); }
+
+    .nav { display: flex; flex-direction: column; gap: 0.3rem; flex: 1; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.6rem 0.8rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      text-decoration: none;
+    }
+
+    .nav-item:hover { background: var(--surface2); color: var(--text); }
+    .nav-item.active { background: var(--surface2); color: var(--text); }
+    .nav-item svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.7; }
+    .nav-item.active svg { opacity: 1; }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.7rem 0.8rem;
+      background: var(--surface2);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--coral));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Fraunces', serif;
+      font-weight: 900;
+      font-size: 0.75rem;
+      color: #0e0c0a;
+      flex-shrink: 0;
+    }
+
+    .user-name { font-size: 0.82rem; font-weight: 500; }
+    .user-role { font-size: 0.68rem; color: var(--text-muted); }
+
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    .topbar {
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .greeting {
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .greeting span { color: var(--gold); font-style: italic; }
+
+    .streak-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(232,168,50,0.1);
+      border: 1px solid rgba(232,168,50,0.22);
+      border-radius: 100px;
+      padding: 0.35rem 0.85rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.1rem 1.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .stat-val {
+      font-family: 'Fraunces', serif;
+      font-weight: 900;
+      font-size: 1.75rem;
+      line-height: 1;
+    }
+
+    .stat-val.gold { color: var(--gold); }
+    .stat-val.green { color: var(--success); }
+
+    .goal-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+    }
+
+    .card-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--text-muted);
+      margin-bottom: 0.85rem;
+    }
+
+    .goal-row { display: flex; gap: 0.75rem; }
+
+    .goal-input {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      padding: 0.85rem 1.1rem;
+      font-family: 'Cabinet Grotesk', sans-serif;
+      font-size: 0.95rem;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .goal-input::placeholder { color: var(--text-dim); }
+    .goal-input:focus { border-color: var(--gold); }
+
+    .generate-btn {
+      background: var(--gold);
+      color: #0e0c0a;
+      border: none;
+      border-radius: 10px;
+      padding: 0 1.5rem;
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      white-space: nowrap;
+    }
+
+    .generate-btn:hover { background: var(--gold2); }
+    .generate-btn:active { transform: scale(0.97); }
+    .generate-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .loading-row {
+      display: none;
+      align-items: center;
+      gap: 0.6rem;
+      margin-top: 1rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .loading-row.visible { display: flex; }
+
+    .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); animation: bounce 1.1s infinite; }
+    .dot:nth-child(2) { animation-delay: 0.18s; }
+    .dot:nth-child(3) { animation-delay: 0.36s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+      40% { transform: translateY(-5px); opacity: 1; }
+    }
+
+    .tasks-section { display: none; flex-direction: column; gap: 1.25rem; }
+    .tasks-section.visible { display: flex; animation: fadeUp 0.4s ease; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .tasks-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .tasks-goal-name {
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+      flex: 1;
+    }
+
+    .progress-info {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      padding-top: 0.2rem;
+    }
+
+    .progress-track {
+      background: var(--surface2);
+      border-radius: 100px;
+      height: 5px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--coral));
+      border-radius: 100px;
+      transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+      width: 0%;
+    }
+
+    .task-list { display: flex; flex-direction: column; gap: 0.55rem; }
+
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.15s;
+      user-select: none;
+    }
+
+    .task-item:hover { border-color: var(--border2); }
+
+    .task-item.done {
+      background: rgba(62,207,142,0.04);
+      border-color: rgba(62,207,142,0.18);
+    }
+
+    .task-check {
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      border: 1.5px solid var(--border2);
+      flex-shrink: 0;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .task-item.done .task-check { background: var(--success); border-color: var(--success); }
+
+    .check-svg { display: none; width: 10px; height: 10px; }
+    .task-item.done .check-svg { display: block; }
+
+    .task-body { flex: 1; }
+
+    .task-text { font-size: 0.9rem; line-height: 1.5; transition: color 0.2s; }
+    .task-item.done .task-text { color: var(--text-muted); text-decoration: line-through; }
+
+    .task-step {
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      margin-top: 0.2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .feedback {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      transition: all 0.3s;
+    }
+
+    .feedback-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--gold);
+      flex-shrink: 0;
+      animation: glow 2.5s infinite;
+    }
+
+    .feedback.warn .feedback-dot { background: var(--coral); }
+    .feedback.win .feedback-dot { background: var(--success); }
+
+    @keyframes glow {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="logo">Anchor<span>.</span></div>
+    <nav class="nav">
+      <a class="nav-item active" href="#">
+        <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4"/><path d="M8 5v3.5l2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        History
+      </a>
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M2.5 13.5c0-3 2.5-4.5 5.5-4.5s5.5 1.5 5.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Profile
+      </a>
+    </nav>
+    <div class="user-chip">
+      <div class="avatar" id="avatarInitial">A</div>
+      <div>
+        <div class="user-name" id="sidebarName">Student</div>
+        <div class="user-role">Anchor member</div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="greeting">Hey, <span id="greetName">there</span> 👋</div>
+      <div class="streak-pill">
+        🔥 <span id="streakCount">0</span>-day streak
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total logins</div>
+          <div class="stat-val gold" id="statLogins">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Goals set</div>
+          <div class="stat-val" id="statGoals">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Tasks done</div>
+          <div class="stat-val green" id="statDone">0</div>
+        </div>
+      </div>
+
+      <div class="goal-card">
+        <div class="card-label">What's your goal today?</div>
+        <div class="goal-row">
+          <input class="goal-input" id="goalInput" type="text" placeholder="e.g. Ace my midterm, finish my capstone, land this internship…" maxlength="300" />
+          <button class="generate-btn" id="generateBtn" onclick="generatePlan()">Generate Plan</button>
+        </div>
+        <div class="loading-row" id="loadingRow">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          <span>Building your plan…</span>
+        </div>
+      </div>
+
+      <div class="tasks-section" id="tasksSection">
+        <div class="tasks-header">
+          <div class="tasks-goal-name" id="goalLabel"></div>
+          <div class="progress-info" id="progressInfo">0 / 0 done</div>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="task-list" id="taskList"></div>
+        <div class="feedback" id="feedback">
+          <div class="feedback-dot"></div>
+          <span id="feedbackText">Ready when you are.</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let tasks = [];
+    let completed = new Set();
+    let totalGoals = parseInt(localStorage.getItem('anchor_goals') || '0');
+    let totalDone = parseInt(localStorage.getItem('anchor_done') || '0');
+
+    function updateStreak() {
+      const today = new Date().toDateString();
+      const lastLogin = localStorage.getItem('anchor_last_login');
+      const yesterday = new Date(Date.now() - 86400000).toDateString();
+      let streak = parseInt(localStorage.getItem('anchor_streak') || '0');
+      let logins = parseInt(localStorage.getItem('anchor_logins') || '0');
+
+      if (lastLogin !== today) {
+        logins++;
+        streak = (lastLogin === yesterday) ? streak + 1 : 1;
+        localStorage.setItem('anchor_last_login', today);
+        localStorage.setItem('anchor_streak', streak);
+        localStorage.setItem('anchor_logins', logins);
+      }
+
+      document.getElementById('streakCount').textContent = streak;
+      document.getElementById('statLogins').textContent = logins;
+    }
+
+    function loadUser() {
+      const name = localStorage.getItem('anchor_name') || 'there';
+      const initial = name !== 'there' ? name[0].toUpperCase() : 'A';
+      document.getElementById('greetName').textContent = name;
+      document.getElementById('sidebarName').textContent = name;
+      document.getElementById('avatarInitial').textContent = initial;
+    }
+
+    function getSmartTasks(goal) {
+      const g = goal.toLowerCase();
+
+      if (g.includes('exam') || g.includes('test') || g.includes('midterm') || g.includes('final') || g.includes('quiz') || g.includes('study')) {
+        return [
+          'List every topic that will be on the exam',
+          'Gather your notes, slides, and textbook chapters',
+          'Review each topic section by section',
+          'Do practice problems or past exam papers',
+          'Identify weak spots and revisit them',
+          'Do a full timed practice run',
+          'Rest and review key formulas the night before'
+        ];
+      }
+      if (g.includes('project') || g.includes('capstone') || g.includes('build') || g.includes('app') || g.includes('code') || g.includes('website') || g.includes('hackathon')) {
+        return [
+          'Define the project scope and what done looks like',
+          'Set up your repo, environment, and folder structure',
+          'Build the core functionality — no extras yet',
+          'Connect all the pieces and test they work together',
+          'Write basic tests and fix what breaks',
+          'Polish the UI and clean up the code',
+          'Write your README and record a demo',
+          'Push to GitHub and submit'
+        ];
+      }
+      if (g.includes('essay') || g.includes('paper') || g.includes('write') || g.includes('report') || g.includes('thesis')) {
+        return [
+          'Define your thesis or main argument clearly',
+          'Outline the structure — intro, body, conclusion',
+          'Find at least 5 strong, credible sources',
+          'Write the body paragraphs first',
+          'Write your introduction and conclusion last',
+          'Edit for clarity, flow, and transitions',
+          'Proofread for grammar, citations, and formatting'
+        ];
+      }
+      if (g.includes('internship') || g.includes('job') || g.includes('apply') || g.includes('resume') || g.includes('career') || g.includes('interview')) {
+        return [
+          'Research the company and role in depth',
+          'Tailor your resume to the job description',
+          'Write a specific, personal cover letter',
+          'Get a peer or mentor to review both',
+          'Submit the application before the deadline',
+          'Send a follow-up email 5 days later',
+          'Prep for the interview using the STAR method'
+        ];
+      }
+      if (g.includes('present') || g.includes('speech') || g.includes('pitch') || g.includes('talk')) {
+        return [
+          'Define the one key message your audience should remember',
+          'Outline your slides or talking points',
+          'Build the visual deck or materials',
+          'Practice out loud at least 3 times solo',
+          'Do a full run-through with someone watching',
+          'Time yourself and cut anything over the limit',
+          'Rest your voice and review your opening line the night before'
+        ];
+      }
+      return [
+        'Define exactly what success looks like for this goal',
+        'Break it into the 3 biggest milestones',
+        'Identify the first action you can take in the next 30 minutes',
+        'Block focused time in your calendar',
+        'Remove your biggest distraction for the next session',
+        'Complete the first milestone and check in with yourself',
+        'Review progress and adjust the plan if needed'
+      ];
+    }
+
+    function generatePlan() {
+      const input = document.getElementById('goalInput');
+      const goal = input.value.trim();
+
+      if (!goal) {
+        input.focus();
+        input.style.borderColor = '#e8694a';
+        setTimeout(() => input.style.borderColor = '', 1200);
+        return;
+      }
+
+      const btn = document.getElementById('generateBtn');
+      btn.disabled = true;
+      document.getElementById('loadingRow').classList.add('visible');
+
+      setTimeout(() => {
+        tasks = getSmartTasks(goal);
+        completed = new Set();
+        totalGoals++;
+        localStorage.setItem('anchor_goals', totalGoals);
+        document.getElementById('statGoals').textContent = totalGoals;
+        document.getElementById('loadingRow').classList.remove('visible');
+        btn.disabled = false;
+        document.getElementById('goalLabel').textContent = goal.length > 50 ? goal.slice(0, 50) + '…' : goal;
+        renderTasks();
+        updateProgress();
+        updateFeedback();
+        document.getElementById('tasksSection').classList.add('visible');
+        input.value = '';
+      }, 900);
+    }
+
+    function renderTasks() {
+      const list = document.getElementById('taskList');
+      list.innerHTML = '';
+      tasks.forEach((t, i) => {
+        const el = document.createElement('div');
+        el.className = 'task-item' + (completed.has(i) ? ' done' : '');
+        el.onclick = () => toggleTask(i);
+        el.innerHTML = `
+          <div class="task-check">
+            <svg class="check-svg" viewBox="0 0 10 10" fill="none">
+              <path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="task-body">
+            <div class="task-text">${t}</div>
+            <div class="task-step">Step ${i + 1} of ${tasks.length}</div>
+          </div>
+        `;
+        list.appendChild(el);
+      });
+    }
+
+    function toggleTask(i) {
+      if (completed.has(i)) {
+        completed.delete(i);
+        totalDone = Math.max(0, totalDone - 1);
+      } else {
+        completed.add(i);
+        totalDone++;
+      }
+      localStorage.setItem('anchor_done', totalDone);
+      document.getElementById('statDone').textContent = totalDone;
+      renderTasks();
+      updateProgress();
+      updateFeedback();
+    }
+
+    function updateProgress() {
+      const total = tasks.length;
+      const done = completed.size;
+      const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+      document.getElementById('progressFill').style.width = pct + '%';
+      document.getElementById('progressInfo').textContent = `${done} / ${total} done`;
+    }
+
+    function updateFeedback() {
+      const total = tasks.length;
+      const done = completed.size;
+      const pct = total > 0 ? done / total : 0;
+      const card = document.getElementById('feedback');
+      const text = document.getElementById('feedbackText');
+      card.className = 'feedback';
+
+      if (done === 0) {
+        text.textContent = "You haven't started yet — pick the first step and go.";
+      } else if (pct <= 0.3) {
+        text.textContent = "Good start. Every step forward is momentum — keep it going.";
+        card.classList.add('warn');
+      } else if (pct < 0.7) {
+        text.textContent = "You're in the middle — this is where most people stop. Don't be most people.";
+        card.classList.add('warn');
+      } else if (pct < 1) {
+        text.textContent = "Almost there. One last push and this is done.";
+        card.classList.add('warn');
+      } else {
+        text.textContent = "Goal complete. That's what showing up looks like. Set your next one.";
+        card.classList.add('win');
+      }
+    }
+
+    loadUser();
+    updateStreak();
+    document.getElementById('statGoals').textContent = totalGoals;
+    document.getElementById('statDone').textContent = totalDone;
+    document.getElementById('goalInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') generatePlan();
+    });
+  </script>
+</body>
+</html>
