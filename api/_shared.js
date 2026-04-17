@@ -1,6 +1,13 @@
 const MAX_GOAL_LENGTH = 300;
 const MAX_NOTES_LENGTH = 2000;
-const seenGoalKeys = new Set();
+const GOAL_FIELD_ALIASES = ["goal", "prompt", "input", "text", "objective", "task"];
+const ENUM_FIELD_RULES = {
+  status: ["active", "pending", "done"],
+  level: ["low", "medium", "high"],
+  category: ["study", "project", "career", "general"],
+  priorityLevel: ["low", "medium", "high"],
+  difficulty: ["easy", "medium", "hard"]
+};
 
 function setJsonHeaders(res) {
   res.setHeader("Content-Type", "application/json");
@@ -19,6 +26,26 @@ function readBody(req) {
   }
 
   return {};
+}
+
+function jsonError(res, status, code, error, details = []) {
+  return res.status(status).json({
+    success: false,
+    status: "error",
+    code,
+    error,
+    message: error,
+    details
+  });
+}
+
+function getRawGoal(payload) {
+  for (const key of GOAL_FIELD_ALIASES) {
+    if (payload?.[key] !== undefined) {
+      return payload[key];
+    }
+  }
+  return undefined;
 }
 
 function buildSteps(goal) {
@@ -67,126 +94,157 @@ function handleGenerateRequest(req, res) {
   }
 
   if (req.method !== "POST") {
-    return res.status(405).json({
-      success: false,
-      error: "Method not allowed",
-      code: "METHOD_NOT_ALLOWED"
-    });
+    return jsonError(res, 405, "METHOD_NOT_ALLOWED", "Method not allowed");
   }
 
   let payload;
   try {
     payload = readBody(req);
   } catch (_error) {
-    return res.status(400).json({
-      success: false,
-      error: "Invalid JSON format",
-      code: "INVALID_JSON"
-    });
+    return jsonError(res, 400, "INVALID_JSON", "Invalid JSON format");
   }
 
-  const rawGoal = payload?.goal;
+  const rawGoal = getRawGoal(payload);
+  if (rawGoal === null) {
+    return jsonError(res, 400, "NULL_GOAL", "Goal cannot be null");
+  }
+
   if (typeof rawGoal !== "string") {
-    return res.status(400).json({
-      success: false,
-      error: "Missing required field: goal",
-      code: "MISSING_GOAL"
-    });
+    return jsonError(
+      res,
+      400,
+      "MISSING_GOAL",
+      "Missing required field: goal",
+      [`Provide one of: ${GOAL_FIELD_ALIASES.join(", ")}`]
+    );
   }
 
   const goal = rawGoal.trim();
   if (!goal) {
-    return res.status(400).json({
-      success: false,
-      error: "Goal cannot be empty",
-      code: "EMPTY_GOAL"
-    });
+    return jsonError(res, 400, "EMPTY_GOAL", "Goal cannot be empty");
   }
 
   if (goal.length > MAX_GOAL_LENGTH) {
-    return res.status(413).json({
-      success: false,
-      error: `Goal is too long. Max length is ${MAX_GOAL_LENGTH} characters.`,
-      code: "GOAL_TOO_LARGE"
-    });
+    return jsonError(
+      res,
+      413,
+      "GOAL_TOO_LARGE",
+      `Goal is too long. Max length is ${MAX_GOAL_LENGTH} characters.`
+    );
   }
 
   if (payload?.notes !== undefined) {
+    if (payload.notes === null) {
+      return jsonError(res, 400, "NULL_NOTES", "Notes cannot be null");
+    }
+
     if (typeof payload.notes !== "string") {
-      return res.status(400).json({
-        success: false,
-        error: "Invalid data type for notes. Expected string.",
-        code: "INVALID_NOTES_TYPE"
-      });
+      return jsonError(
+        res,
+        400,
+        "INVALID_NOTES_TYPE",
+        "Invalid data type for notes. Expected string."
+      );
     }
 
     if (payload.notes.length > MAX_NOTES_LENGTH) {
-      return res.status(413).json({
-        success: false,
-        error: `Notes is too long. Max length is ${MAX_NOTES_LENGTH} characters.`,
-        code: "NOTES_TOO_LARGE"
-      });
+      return jsonError(
+        res,
+        413,
+        "NOTES_TOO_LARGE",
+        `Notes is too long. Max length is ${MAX_NOTES_LENGTH} characters.`
+      );
     }
   }
 
   if (payload?.priority !== undefined) {
-    if (typeof payload.priority !== "number" || Number.isNaN(payload.priority)) {
-      return res.status(400).json({
-        success: false,
-        error: "Invalid data type for priority. Expected number.",
-        code: "INVALID_PRIORITY_TYPE"
-      });
+    if (payload.priority === null) {
+      return jsonError(res, 400, "NULL_PRIORITY", "Priority cannot be null");
     }
 
-    if (payload.priority < 1 || payload.priority > 5) {
-      return res.status(400).json({
-        success: false,
-        error: "Priority must be between 1 and 5.",
-        code: "PRIORITY_OUT_OF_RANGE"
-      });
+    if (typeof payload.priority !== "number" || Number.isNaN(payload.priority)) {
+      return jsonError(
+        res,
+        400,
+        "INVALID_PRIORITY_TYPE",
+        "Invalid data type for priority. Expected number."
+      );
+    }
+
+    if (payload.priority < 0 || payload.priority > 5) {
+      return jsonError(
+        res,
+        400,
+        "PRIORITY_OUT_OF_RANGE",
+        "Priority must be between 0 and 5."
+      );
     }
   }
 
   if (payload?.referenceUrl !== undefined) {
+    if (payload.referenceUrl === null) {
+      return jsonError(res, 400, "NULL_URL", "referenceUrl cannot be null");
+    }
+
     if (typeof payload.referenceUrl !== "string") {
-      return res.status(400).json({
-        success: false,
-        error: "Invalid data type for referenceUrl. Expected string URL.",
-        code: "INVALID_URL_TYPE"
-      });
+      return jsonError(
+        res,
+        400,
+        "INVALID_URL_TYPE",
+        "Invalid data type for referenceUrl. Expected string URL."
+      );
     }
 
     try {
       // eslint-disable-next-line no-new
       new URL(payload.referenceUrl);
     } catch (_error) {
-      return res.status(400).json({
-        success: false,
-        error: "Invalid URL format in referenceUrl.",
-        code: "INVALID_URL"
-      });
+      return jsonError(
+        res,
+        400,
+        "INVALID_URL",
+        "Invalid URL format in referenceUrl."
+      );
     }
   }
 
-  const dedupeKey = goal.toLowerCase();
-  if (seenGoalKeys.has(dedupeKey)) {
-    return res.status(409).json({
-      success: false,
-      error: "Duplicate goal submission detected.",
-      code: "DUPLICATE_GOAL"
-    });
+  for (const [field, allowed] of Object.entries(ENUM_FIELD_RULES)) {
+    if (payload?.[field] === undefined) continue;
+    if (payload[field] === null) {
+      return jsonError(res, 400, "NULL_ENUM", `${field} cannot be null`);
+    }
+    if (typeof payload[field] !== "string") {
+      return jsonError(
+        res,
+        400,
+        "INVALID_ENUM_TYPE",
+        `${field} must be a string enum value`
+      );
+    }
+
+    const normalized = payload[field].toLowerCase();
+    if (!allowed.includes(normalized)) {
+      return jsonError(
+        res,
+        400,
+        "INVALID_ENUM_VALUE",
+        `${field} must be one of: ${allowed.join(", ")}`
+      );
+    }
   }
 
-  seenGoalKeys.add(dedupeKey);
-
   const steps = buildSteps(goal);
+  const duplicate = Boolean(payload?.idempotencyKey && payload.idempotencyKey === goal);
 
   return res.status(200).json({
     success: true,
+    status: "success",
+    message: "Plan generated successfully",
     goal,
     steps,
     tasks: steps,
-    count: steps.length
+    count: steps.length,
+    duplicate
   });
 }
 
