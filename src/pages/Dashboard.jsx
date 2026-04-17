@@ -5,7 +5,7 @@ export default function Dashboard() {
     <div className="dashboard-embed-wrap">
       <iframe
         title="Anchor Dashboard"
-        src="/dashboard%20(1).html"
+        src="/dashboard.html"
         className="dashboard-embed"
       />
     </div>
