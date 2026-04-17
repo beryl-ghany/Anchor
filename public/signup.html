@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign up — Anchor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900&family=Cabinet+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0e0c0a;
+      --surface: #1c1814;
+      --border: rgba(255,235,200,0.12);
+      --text: #f5ede0;
+      --text-muted: #8a7d6e;
+      --gold: #e8a832;
+      --gold2: #f5c860;
+      --coral: #e8694a;
+      --error: #f08080;
+    }
+    body {
+      font-family: 'Cabinet Grotesk', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.25rem;
+    }
+    .wrap {
+      width: 100%;
+      max-width: 420px;
+    }
+    .brand {
+      font-family: 'Fraunces', serif;
+      font-weight: 900;
+      font-size: 1.75rem;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+    .brand span { color: var(--gold); }
+    .sub {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+      line-height: 1.5;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem 1.75rem;
+    }
+    form label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+    form .field { margin-bottom: 1.15rem; }
+    form input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #12100e;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+    form input:focus {
+      outline: 2px solid rgba(232,168,50,0.35);
+      outline-offset: 1px;
+    }
+    form input[aria-invalid="true"] {
+      border-color: rgba(240,128,128,0.6);
+    }
+    .err {
+      font-size: 0.8rem;
+      color: var(--error);
+      margin-top: 0.35rem;
+      display: none;
+    }
+    .err.show { display: block; }
+    .form-error {
+      display: none;
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      background: rgba(240,128,128,0.12);
+      border: 1px solid rgba(240,128,128,0.35);
+      color: #ffc4c4;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+    }
+    .form-error.show { display: block; }
+    button[type="submit"] {
+      width: 100%;
+      margin-top: 0.5rem;
+      padding: 0.9rem 1.25rem;
+      border: none;
+      border-radius: 100px;
+      background: var(--gold);
+      color: #0e0c0a;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button[type="submit"]:hover:not(:disabled) { background: var(--gold2); }
+    button[type="submit"]:disabled { opacity: 0.55; cursor: not-allowed; }
+    .back {
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+    .back a {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      text-decoration: none;
+    }
+    .back a:hover { color: var(--gold); }
+    .links {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+    .links a { color: var(--gold); text-decoration: none; }
+    .links a:hover { text-decoration: underline; }
+    .hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+      line-height: 1.4;
+    }
+
+    .skip-to-main {
+      position: absolute;
+      left: -9999px;
+      top: 0.75rem;
+      z-index: 10;
+      padding: 0.6rem 1rem;
+      background: var(--gold);
+      color: #0e0c0a;
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-decoration: none;
+      border-radius: 8px;
+    }
+
+    .skip-to-main:focus {
+      left: 1rem;
+      outline: 3px solid var(--gold2);
+      outline-offset: 2px;
+    }
+
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-to-main" href="#signup-main">Skip to main content</a>
+  <div class="wrap" id="signup-main" tabindex="-1">
+    <p class="brand">Anchor<span>.</span></p>
+    <p class="sub">Create your account with email and password. No Google required.</p>
+
+    <div class="card">
+      <div id="formError" class="form-error" role="alert" aria-live="assertive"></div>
+
+      <form id="signupForm" data-testid="signup-form" novalidate>
+        <div class="field">
+          <label for="name">Full name</label>
+          <input id="name" name="name" type="text" autocomplete="name" required minlength="2" maxlength="120"
+            data-testid="signup-name" aria-describedby="nameErr" />
+          <p id="nameErr" class="err" role="alert"></p>
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required maxlength="254"
+            data-testid="signup-email" aria-describedby="emailErr" />
+          <p id="emailErr" class="err" role="alert"></p>
+        </div>
+        <div class="field">
+          <label for="focus">Primary focus</label>
+          <input id="focus" name="focus" type="text" autocomplete="organization" required minlength="2" maxlength="200"
+            placeholder="e.g. Junior year, pre-med track"
+            data-testid="signup-focus" aria-describedby="focusHint focusErr" />
+          <p id="focusHint" class="hint">What you’re working toward this semester — helps Anchor personalize nudges.</p>
+          <p id="focusErr" class="err" role="alert"></p>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="new-password" required minlength="8" maxlength="128"
+            data-testid="signup-password" aria-describedby="pwdHint pwdErr" />
+          <p id="pwdHint" class="hint">At least 8 characters and one number.</p>
+          <p id="pwdErr" class="err" role="alert"></p>
+        </div>
+        <div class="field">
+          <label for="confirmPassword">Confirm password</label>
+          <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" required
+            data-testid="signup-confirm-password" aria-describedby="confirmErr" />
+          <p id="confirmErr" class="err" role="alert"></p>
+        </div>
+        <button type="submit" data-testid="signup-submit">Create account</button>
+      </form>
+    </div>
+
+    <p class="links">Already have an account? <a href="/login.html">Log in</a></p>
+    <p class="back"><a href="/landing.html">← Back to home</a></p>
+  </div>
+
+  <script>
+    const form = document.getElementById("signupForm");
+    const formError = document.getElementById("formError");
+
+    const fieldErrIds = {
+      name: "nameErr",
+      email: "emailErr",
+      focus: "focusErr",
+      password: "pwdErr",
+      confirmPassword: "confirmErr"
+    };
+
+    function showFieldError(fieldId, msg) {
+      const box = document.getElementById(fieldErrIds[fieldId]);
+      const input = document.getElementById(fieldId);
+      if (box) {
+        box.textContent = msg || "";
+        box.classList.toggle("show", !!msg);
+      }
+      if (input) input.setAttribute("aria-invalid", msg ? "true" : "false");
+    }
+
+    function clearErrors() {
+      Object.keys(fieldErrIds).forEach((id) => showFieldError(id, ""));
+      formError.textContent = "";
+      formError.classList.remove("show");
+    }
+
+    function validateClientSide() {
+      clearErrors();
+      let ok = true;
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const focus = document.getElementById("focus").value.trim();
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+
+      if (name.length < 2) {
+        showFieldError("name", "Name must be at least 2 characters.");
+        ok = false;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showFieldError("email", "Enter a valid email address.");
+        ok = false;
+      }
+      if (focus.length < 2) {
+        showFieldError("focus", "Primary focus must be at least 2 characters.");
+        ok = false;
+      }
+      if (password.length < 8) {
+        showFieldError("password", "Password must be at least 8 characters.");
+        ok = false;
+      } else if (!/[0-9]/.test(password)) {
+        showFieldError("password", "Password must include at least one number.");
+        ok = false;
+      }
+      if (password !== confirmPassword) {
+        showFieldError("confirmPassword", "Passwords do not match.");
+        ok = false;
+      }
+      return ok;
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!validateClientSide()) return;
+
+      const submitBtn = form.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      clearErrors();
+
+      const payload = {
+        name: document.getElementById("name").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        focus: document.getElementById("focus").value.trim(),
+        password: document.getElementById("password").value
+      };
+
+      try {
+        const res = await fetch("/api/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          if (data.details && Array.isArray(data.details)) {
+            data.details.forEach((d) => {
+              const fid = d.field === "profileFocus" ? "focus" : d.field;
+              if (["name", "email", "focus", "password"].includes(fid)) {
+                showFieldError(fid, d.message);
+              }
+            });
+          }
+          formError.textContent = data.error || "Could not create account.";
+          formError.classList.add("show");
+          submitBtn.disabled = false;
+          return;
+        }
+
+        localStorage.setItem("anchor_name", payload.name);
+        localStorage.setItem("anchor_focus", payload.focus);
+        localStorage.setItem("anchor_email", payload.email);
+        localStorage.setItem("anchor_signed_up", "1");
+
+        const loginRes = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: payload.email,
+            password: payload.password
+          })
+        });
+        const loginData = await loginRes.json().catch(() => ({}));
+        if (loginRes.ok && loginData.access_token) {
+          const expiresIn =
+            typeof loginData.expires_in === "number" ? loginData.expires_in : 3600;
+          localStorage.setItem(
+            "anchor_auth",
+            JSON.stringify({
+              access_token: loginData.access_token,
+              id_token: loginData.id_token || null,
+              expires_at: Date.now() + expiresIn * 1000
+            })
+          );
+          window.location.href = "/dashboard.html";
+        } else {
+          window.location.href =
+            "/login.html?registered=1&email=" +
+            encodeURIComponent(payload.email);
+        }
+      } catch (err) {
+        formError.textContent = err.message || "Network error.";
+        formError.classList.add("show");
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

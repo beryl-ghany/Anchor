@@ -28,8 +28,47 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
+      margin: 0;
       display: flex;
+      flex-direction: column;
     }
+
+    .app-shell {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      position: relative;
+    }
+
+    .nav-toggle {
+      display: none;
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 60;
+      width: 48px;
+      height: 48px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 1.25rem;
+      line-height: 1;
+    }
+
+    .nav-scrim {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 45;
+      background: rgba(0,0,0,0.45);
+    }
+
+    .nav-scrim.visible { display: block; }
 
     .sidebar {
       width: 200px;
@@ -118,6 +157,30 @@
     }
 
     .greeting span { color: var(--gold); font-style: italic; }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logout-btn {
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 0.4rem 1rem;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .logout-btn:hover {
+      color: var(--text);
+      border-color: rgba(255,235,200,0.25);
+    }
 
     .streak-pill {
       display: flex;
@@ -441,11 +504,359 @@
       font-size: 0.86rem;
       padding: 0.5rem 0.2rem;
     }
+
+    .profile-hint {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin: -0.15rem 0 0.4rem;
+      line-height: 1.4;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .history-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .history-search {
+      flex: 1;
+      min-width: 180px;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      padding: 0.65rem 0.9rem;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.9rem;
+    }
+
+    .history-search:focus {
+      outline: 2px solid rgba(232,168,50,0.35);
+      border-color: var(--gold);
+    }
+
+    .history-sort {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      padding: 0.6rem 0.85rem;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.85rem;
+      min-height: 44px;
+    }
+
+    .tag-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-bottom: 1rem;
+    }
+
+    .tag-chip {
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.45rem 0.85rem;
+      min-height: 40px;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+
+    .tag-chip:hover { border-color: var(--border2); color: var(--text); }
+
+    .tag-chip.active {
+      background: rgba(232,168,50,0.12);
+      border-color: rgba(232,168,50,0.35);
+      color: var(--gold);
+    }
+
+    .history-empty {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .history-row-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .history-edit-btn {
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.45rem 0.85rem;
+      min-height: 40px;
+      border-radius: 10px;
+      border: 1px solid var(--border2);
+      background: var(--surface2);
+      color: var(--text);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .history-edit {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      display: grid;
+      gap: 0.65rem;
+      max-width: 420px;
+    }
+
+    .history-edit label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .history-edit input,
+    .history-edit select {
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 0.55rem 0.75rem;
+      border-radius: 8px;
+      border: 1px solid var(--border2);
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .history-edit .field-error {
+      font-size: 0.78rem;
+      color: var(--coral);
+      display: none;
+    }
+
+    .history-edit .field-error.show { display: block; }
+
+    .edit-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .mini-save {
+      background: var(--gold);
+      color: #0e0c0a;
+      border: none;
+      border-radius: 10px;
+      padding: 0.5rem 1rem;
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      min-height: 44px;
+    }
+
+    .mini-save:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .mini-cancel {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 10px;
+      padding: 0.5rem 1rem;
+      font-family: inherit;
+      cursor: pointer;
+      min-height: 44px;
+    }
+
+    .saving-indicator {
+      font-size: 0.8rem;
+      color: var(--gold);
+    }
+
+    .history-tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.4rem;
+    }
+
+    .history-tag-pill {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      background: rgba(232,168,50,0.1);
+      border: 1px solid rgba(232,168,50,0.2);
+      color: var(--gold);
+    }
+
+    .dashboard-skip {
+      position: absolute;
+      left: -9999px;
+      top: 0.75rem;
+      z-index: 120;
+      padding: 0.6rem 1rem;
+      background: var(--gold);
+      color: #0e0c0a;
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-decoration: none;
+      border-radius: 8px;
+    }
+
+    .dashboard-skip:focus {
+      left: 1rem;
+      outline: 3px solid var(--gold2);
+      outline-offset: 2px;
+    }
+
+    .nav-item:focus-visible,
+    .logout-btn:focus-visible,
+    .generate-btn:focus-visible,
+    .history-edit-btn:focus-visible,
+    .mini-save:focus-visible,
+    .mini-cancel:focus-visible,
+    .tag-chip:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
+    }
+
+    .anchor-toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(120%);
+      z-index: 100;
+      padding: 0.85rem 1rem;
+      border-radius: 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      color: var(--text);
+      font-size: 0.88rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+      transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+      max-width: min(90vw, 420px);
+      text-align: left;
+    }
+
+    .anchor-toast.show { transform: translateX(-50%) translateY(0); }
+    .anchor-toast.err { border-color: rgba(232,105,74,0.45); color: #ffb4a8; }
+
+    .anchor-toast-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .anchor-toast-msg { flex: 1; line-height: 1.45; }
+
+    .anchor-toast-dismiss {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: transparent;
+      color: inherit;
+      font-size: 1.25rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .anchor-toast-dismiss:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
+    }
+
+    .anchor-toast-retry {
+      margin-top: 0.65rem;
+      width: 100%;
+      padding: 0.5rem;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.85rem;
+      border-radius: 8px;
+      border: 1px solid var(--gold);
+      background: rgba(232,168,50,0.12);
+      color: var(--gold);
+      cursor: pointer;
+    }
+
+    .anchor-toast-retry:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
+    }
+
+    @media (max-width: 768px) {
+      .nav-toggle { display: flex; }
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        z-index: 50;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        box-shadow: none;
+      }
+      .sidebar.open { transform: translateX(0); box-shadow: 8px 0 40px rgba(0,0,0,0.4); }
+      .main { width: 100%; }
+      .content { padding: 1.25rem 1rem; padding-top: 4.5rem; }
+      .topbar { padding-left: 4.5rem; }
+      .stats-row { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
+  <script>
+    (function requireSession() {
+      var raw = localStorage.getItem("anchor_auth");
+      if (!raw) {
+        location.replace("/login.html?return=" + encodeURIComponent(location.pathname + location.search));
+        return;
+      }
+      try {
+        var s = JSON.parse(raw);
+        if (!s.expires_at || s.expires_at < Date.now()) {
+          localStorage.removeItem("anchor_auth");
+          location.replace("/login.html?return=" + encodeURIComponent(location.pathname + location.search));
+        }
+      } catch (_e) {
+        localStorage.removeItem("anchor_auth");
+        location.replace("/login.html?return=/dashboard.html");
+      }
+    })();
+  </script>
 
-  <aside class="sidebar">
+  <a class="dashboard-skip" href="#main-content">Skip to main content</a>
+
+  <button type="button" class="nav-toggle" id="navToggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mainSidebar">☰</button>
+  <div class="nav-scrim" id="navScrim" aria-hidden="true"></div>
+
+  <div class="app-shell">
+  <aside class="sidebar" id="mainSidebar">
     <div class="logo">Anchor<span>.</span></div>
     <nav class="nav">
       <a class="nav-item active" href="#" data-page="dashboard" onclick="switchPage(event, 'dashboard')">
@@ -470,11 +881,14 @@
     </div>
   </aside>
 
-  <main class="main">
+  <main class="main" id="main-content" tabindex="-1">
     <div class="topbar">
       <div class="greeting" id="pageTitle">Hey, <span id="greetName">there</span> 👋</div>
-      <div class="streak-pill">
-        🔥 <span id="streakCount">0</span>-day streak
+      <div class="topbar-right">
+        <div class="streak-pill">
+          🔥 <span id="streakCount">0</span>-day streak
+        </div>
+        <button type="button" class="logout-btn" id="logoutBtn" data-testid="logout-btn" onclick="anchorLogout()">Log out</button>
       </div>
     </div>
 
@@ -498,7 +912,7 @@
       <div class="goal-card">
         <div class="card-label">What's your goal today?</div>
         <div class="goal-row">
-          <input class="goal-input" id="goalInput" type="text" placeholder="e.g. Ace my midterm, finish my capstone, land this internship…" maxlength="300" />
+          <input class="goal-input" id="goalInput" type="text" placeholder="e.g. Ace my midterm, finish my capstone, land this internship…" maxlength="300" aria-label="Describe your goal" autocomplete="off" />
           <button class="generate-btn" id="generateBtn" onclick="generatePlan()">Generate Plan</button>
         </div>
         <div class="loading-row" id="loadingRow">
@@ -526,7 +940,25 @@
       <section class="page-section" id="page-history">
         <div class="goal-card">
           <div class="card-label">Goal history</div>
-          <div class="history-list" id="historyList"></div>
+          <div class="history-toolbar" role="search">
+            <label class="visually-hidden" for="historySearch">Search goals</label>
+            <input type="search" class="history-search" id="historySearch" placeholder="Search goals…" autocomplete="off" aria-label="Search goals" data-testid="history-search" />
+            <div class="history-sort-wrap">
+              <label class="visually-hidden" for="historySort">Sort goals</label>
+              <select id="historySort" class="history-sort" aria-label="Sort goals" data-testid="history-sort">
+                <option value="newest">Newest first</option>
+                <option value="oldest">Oldest first</option>
+                <option value="priority">Priority</option>
+                <option value="title">Title A–Z</option>
+                <option value="due">Due date</option>
+              </select>
+            </div>
+          </div>
+          <div class="tag-filters" id="tagFilters" role="group" aria-label="Filter by tag" data-testid="history-tag-filters"></div>
+          <div id="historyListWrap">
+            <div class="history-list" id="historyList"></div>
+            <p id="historyEmpty" class="history-empty" hidden role="status"></p>
+          </div>
         </div>
       </section>
 
@@ -537,21 +969,39 @@
             <div class="profile-grid">
               <div>
                 <label for="profileName">Display name</label>
-                <input id="profileName" class="profile-input" type="text" maxlength="40" />
+                <p id="profileName-hint" class="profile-hint">How your name appears in Anchor.</p>
+                <input id="profileName" class="profile-input" type="text" maxlength="40" name="display-name" autocomplete="name" aria-describedby="profileName-hint" />
               </div>
               <div>
                 <label for="profileFocus">Primary focus</label>
-                <input id="profileFocus" class="profile-input" type="text" maxlength="80" placeholder="Exams, internships, coding, capstone..." />
+                <p id="profileFocus-hint" class="profile-hint">Main academic or career focus this term.</p>
+                <input id="profileFocus" class="profile-input" type="text" maxlength="80" placeholder="Exams, internships, coding, capstone..." name="focus" autocomplete="off" aria-describedby="profileFocus-hint" />
               </div>
-              <button class="save-btn" onclick="saveProfile()">Save profile</button>
+              <button type="button" class="save-btn" onclick="saveProfile()">Save profile</button>
             </div>
           </div>
         </div>
       </section>
     </div>
   </main>
+  </div>
+
+  <div id="anchorToast" class="anchor-toast" role="status" aria-live="polite" aria-atomic="true">
+    <div class="anchor-toast-row">
+      <span id="anchorToastMsg" class="anchor-toast-msg"></span>
+      <button type="button" class="anchor-toast-dismiss" id="anchorToastDismiss" aria-label="Dismiss notification">×</button>
+    </div>
+    <button type="button" class="anchor-toast-retry" id="anchorToastRetry" hidden>Retry</button>
+  </div>
 
   <script>
+    function anchorLogout() {
+      Object.keys(localStorage).forEach(function (k) {
+        if (k.indexOf("anchor_") === 0) localStorage.removeItem(k);
+      });
+      window.location.href = "/login.html";
+    }
+
     let tasks = [];
     let completed = new Set();
     let totalGoals = parseInt(localStorage.getItem('anchor_goals') || '0');
@@ -559,9 +1009,111 @@
     let goalHistory = JSON.parse(localStorage.getItem('anchor_history') || '[]');
     let profileFocus = localStorage.getItem('anchor_focus') || '';
     let currentPage = 'dashboard';
+    let currentGoalId = null;
+    let editingGoalId = null;
+    let historySearchQ = '';
+    let historySortVal = 'newest';
+    let historyTagFilter = 'all';
 
     function saveHistory() {
       localStorage.setItem('anchor_history', JSON.stringify(goalHistory));
+    }
+
+    function inferTagsFromTitle(title) {
+      const t = (title || '').toLowerCase();
+      const tags = new Set(['general']);
+      if (/exam|test|quiz|study|class|homework|midterm|final/.test(t)) tags.add('study');
+      if (/intern|job|career|resume|interview|network/.test(t)) tags.add('career');
+      if (/project|build|code|app|hackathon|website|capstone/.test(t)) tags.add('project');
+      return Array.from(tags);
+    }
+
+    function migrateGoalHistory() {
+      goalHistory = goalHistory.map((e, i) => {
+        if (e && e.id && (e.title || e.goal)) {
+          const title = String(e.title || e.goal);
+          return {
+            ...e,
+            title,
+            goal: title,
+            tags: Array.isArray(e.tags) && e.tags.length ? e.tags : inferTagsFromTitle(title),
+            priority: e.priority || 'medium',
+            dueDate: e.dueDate != null ? e.dueDate : null
+          };
+        }
+        const title = e && (e.title || e.goal) ? String(e.title || e.goal) : 'Untitled';
+        return {
+          id: e && e.id ? e.id : 'mig-' + i + '-' + Date.now(),
+          title,
+          goal: title,
+          dueDate: null,
+          priority: 'medium',
+          tags: inferTagsFromTitle(title),
+          status: 'active',
+          completed: e && typeof e.completed === 'number' ? e.completed : 0,
+          total: e && typeof e.total === 'number' ? e.total : 0,
+          date: e && e.date ? e.date : ''
+        };
+      });
+      saveHistory();
+    }
+
+    migrateGoalHistory();
+
+    const PRI_RANK = { high: 3, medium: 2, low: 1 };
+
+    function getFilteredGoals() {
+      let list = goalHistory.map((g) => ({ ...g }));
+      if (historySearchQ.trim()) {
+        const q = historySearchQ.trim().toLowerCase();
+        list = list.filter((g) => (g.title || g.goal || '').toLowerCase().includes(q));
+      }
+      if (historyTagFilter !== 'all') {
+        list = list.filter((g) => (g.tags || []).includes(historyTagFilter));
+      }
+      list.sort((a, b) => {
+        if (historySortVal === 'title') {
+          return (a.title || a.goal || '').localeCompare(b.title || b.goal || '');
+        }
+        if (historySortVal === 'priority') {
+          return (PRI_RANK[b.priority] || 2) - (PRI_RANK[a.priority] || 2);
+        }
+        if (historySortVal === 'due') {
+          const da = a.dueDate || '9999-12-31';
+          const db = b.dueDate || '9999-12-31';
+          return da.localeCompare(db);
+        }
+        const pa = new Date(a.date || 0).getTime();
+        const pb = new Date(b.date || 0).getTime();
+        if (historySortVal === 'oldest') return pa - pb;
+        return pb - pa;
+      });
+      return list;
+    }
+
+    function renderTagFilters() {
+      const el = document.getElementById('tagFilters');
+      if (!el) return;
+      const tagSet = new Set(['all']);
+      goalHistory.forEach((g) => (g.tags || []).forEach((t) => tagSet.add(t)));
+      const tags = Array.from(tagSet);
+      el.innerHTML = tags
+        .map((t) => {
+          const label = t === 'all' ? 'All' : t;
+          const active = historyTagFilter === t ? ' active' : '';
+          return `<button type="button" class="tag-chip${active}" data-tag="${t}">${label}</button>`;
+        })
+        .join('');
+    }
+
+    function showToast(msg, isErr) {
+      const t = document.getElementById('anchorToast');
+      if (!t) return;
+      t.textContent = msg;
+      t.classList.toggle('err', !!isErr);
+      t.classList.add('show');
+      clearTimeout(showToast._tm);
+      showToast._tm = setTimeout(() => t.classList.remove('show'), 3200);
     }
 
     function switchPage(event, page) {
@@ -582,30 +1134,225 @@
         title.innerHTML = `Hey, <span id="greetName">${localStorage.getItem('anchor_name') || 'there'}</span> 👋`;
       } else if (page === 'history') {
         title.textContent = 'Goal history';
+        renderHistory();
       } else {
         title.textContent = 'Profile settings';
       }
     }
 
+    function escHtml(s) {
+      const d = document.createElement('div');
+      d.textContent = s == null ? '' : String(s);
+      return d.innerHTML;
+    }
+
     function renderHistory() {
       const list = document.getElementById('historyList');
+      const empty = document.getElementById('historyEmpty');
+      renderTagFilters();
+
+      const rows = getFilteredGoals();
       if (!goalHistory.length) {
         list.innerHTML = '<p class="empty-note">No goals yet. Generate your first plan from Dashboard.</p>';
+        if (empty) {
+          empty.hidden = true;
+        }
         return;
       }
 
-      list.innerHTML = goalHistory
-        .slice()
-        .reverse()
+      if (!rows.length) {
+        list.innerHTML = '';
+        if (empty) {
+          empty.textContent = 'No goals match your search or filters.';
+          empty.hidden = false;
+        }
+        return;
+      }
+
+      if (empty) {
+        empty.hidden = true;
+      }
+
+      list.innerHTML = rows
         .map((entry) => {
+          const title = entry.title || entry.goal || 'Untitled';
+          const pri = entry.priority || 'medium';
+          const due = entry.dueDate || '';
+          const tags = entry.tags || [];
+          const tagHtml = tags
+            .map((t) => `<span class="history-tag-pill">${escHtml(t)}</span>`)
+            .join('');
+          const open = editingGoalId === entry.id;
           return `
-            <div class="history-item">
-              <div class="history-goal">${entry.goal}</div>
-              <div class="history-meta">${entry.completed} / ${entry.total} tasks done • ${entry.date}</div>
+            <div class="history-item" data-goal-id="${escHtml(entry.id)}">
+              <div class="history-row-head">
+                <div>
+                  <div class="history-goal">${escHtml(title)}</div>
+                  <div class="history-meta">${entry.completed} / ${entry.total} tasks done • ${escHtml(entry.date || '')} · Priority: ${escHtml(pri)}${due ? ' · Due: ' + escHtml(due) : ''}</div>
+                  <div class="history-tag-row">${tagHtml}</div>
+                </div>
+                <button type="button" class="history-edit-btn" data-action="edit" aria-label="Edit goal">Edit</button>
+              </div>
+              <div class="history-edit" ${open ? '' : 'hidden'} data-edit-panel>
+                <label>Title
+                  <input type="text" class="edit-title" maxlength="300" value="${escHtml(title)}" />
+                  <span class="field-error title-err" role="alert"></span>
+                </label>
+                <label>Due date
+                  <input type="date" class="edit-due" value="${due ? escHtml(due) : ''}" />
+                  <span class="field-error edit-due-err" role="alert"></span>
+                </label>
+                <label>Priority
+                  <select class="edit-priority">
+                    <option value="low" ${pri === 'low' ? 'selected' : ''}>Low</option>
+                    <option value="medium" ${pri === 'medium' ? 'selected' : ''}>Medium</option>
+                    <option value="high" ${pri === 'high' ? 'selected' : ''}>High</option>
+                  </select>
+                </label>
+                <label>Tags (comma-separated)
+                  <input type="text" class="edit-tags" value="${escHtml(tags.join(', '))}" placeholder="study, exam" />
+                  <span class="field-error edit-tags-err" role="alert"></span>
+                </label>
+                <div class="edit-actions">
+                  <button type="button" class="mini-save" data-action="save">Save changes</button>
+                  <button type="button" class="mini-cancel" data-action="cancel">Cancel</button>
+                  <span class="saving-indicator" data-saving hidden>Saving…</span>
+                </div>
+              </div>
             </div>
           `;
         })
         .join('');
+
+      list.querySelectorAll('.history-item').forEach((row) => {
+        row.addEventListener('click', (e) => {
+          const btn = e.target.closest('button[data-action]');
+          if (!btn || !row.contains(btn)) return;
+          const id = row.getAttribute('data-goal-id');
+          if (btn.dataset.action === 'edit') {
+            e.preventDefault();
+            editingGoalId = editingGoalId === id ? null : id;
+            renderHistory();
+          }
+          if (btn.dataset.action === 'cancel') {
+            e.preventDefault();
+            editingGoalId = null;
+            renderHistory();
+          }
+          if (btn.dataset.action === 'save') {
+            e.preventDefault();
+            saveGoalEdit(id, row);
+          }
+        });
+      });
+    }
+
+    async function saveGoalEdit(id, row) {
+      const idx = goalHistory.findIndex((g) => g.id === id);
+      if (idx < 0) return;
+
+      const titleEl = row.querySelector('.edit-title');
+      const dueEl = row.querySelector('.edit-due');
+      const priEl = row.querySelector('.edit-priority');
+      const tagsEl = row.querySelector('.edit-tags');
+      const titleErr = row.querySelector('.title-err');
+      const dueErr = row.querySelector('.edit-due-err');
+      const tagsErr = row.querySelector('.edit-tags-err');
+
+      const title = titleEl.value.trim();
+      titleErr.classList.remove('show');
+      titleErr.textContent = '';
+      dueErr.classList.remove('show');
+      dueErr.textContent = '';
+      tagsErr.classList.remove('show');
+      tagsErr.textContent = '';
+
+      if (title.length < 2) {
+        titleErr.textContent = 'Title must be at least 2 characters.';
+        titleErr.classList.add('show');
+        return;
+      }
+
+      const dueVal = dueEl.value.trim();
+      if (dueVal && !/^\d{4}-\d{2}-\d{2}$/.test(dueVal)) {
+        dueErr.textContent = 'Use a valid date.';
+        dueErr.classList.add('show');
+        return;
+      }
+
+      const tagParts = tagsEl.value.split(',').map((t) => t.trim()).filter(Boolean);
+      if (tagParts.length > 12) {
+        tagsErr.textContent = 'Use at most 12 tags.';
+        tagsErr.classList.add('show');
+        return;
+      }
+
+      const prev = JSON.parse(JSON.stringify(goalHistory[idx]));
+      const optimistic = {
+        ...goalHistory[idx],
+        title,
+        goal: title,
+        dueDate: dueVal || null,
+        priority: priEl.value,
+        tags: tagParts.length ? tagParts : ['general']
+      };
+
+      goalHistory[idx] = optimistic;
+      saveHistory();
+      editingGoalId = id;
+      renderHistory();
+
+      const rowEl = document.querySelector('[data-goal-id="' + id + '"]');
+      const saveBtn = rowEl && rowEl.querySelector('.mini-save');
+      const saving = rowEl && rowEl.querySelector('[data-saving]');
+      if (saveBtn) saveBtn.disabled = true;
+      if (saving) saving.hidden = false;
+
+      try {
+        const res = await fetch('/api/goal-save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ goal: optimistic })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          anchorLogEvent('goal_save_http_error', { status: res.status, code: data.code });
+          throw new Error(data.error || data.message || 'Save failed (' + res.status + ')');
+        }
+        anchorLogEvent('goal_save_ok', { status: res.status });
+        if (data.goal) {
+          goalHistory[idx] = { ...goalHistory[idx], ...data.goal };
+          saveHistory();
+        }
+        showToast('Saved to server', { error: false });
+        editingGoalId = null;
+        renderHistory();
+        if (currentGoalId === id) {
+          const t = goalHistory[idx].title || '';
+          document.getElementById('goalLabel').textContent =
+            t.length > 50 ? t.slice(0, 50) + '…' : t;
+        }
+      } catch (err) {
+        goalHistory[idx] = prev;
+        saveHistory();
+        editingGoalId = id;
+        renderHistory();
+        anchorLogEvent('goal_save_failed', { message: String(err && err.message) });
+        showToast(err.message || 'Could not save — changes reverted', {
+          error: true,
+          duration: 0,
+          onRetry: () => {
+            const rowEl = document.querySelector('[data-goal-id="' + id + '"]');
+            if (rowEl) saveGoalEdit(id, rowEl);
+          }
+        });
+      } finally {
+        const row2 = document.querySelector('[data-goal-id="' + id + '"]');
+        const sb = row2 && row2.querySelector('.mini-save');
+        const sv = row2 && row2.querySelector('[data-saving]');
+        if (sb) sb.disabled = false;
+        if (sv) sv.hidden = true;
+      }
     }
 
     function updateStreak() {
@@ -629,12 +1376,15 @@
 
     function loadUser() {
       const name = localStorage.getItem('anchor_name') || 'there';
+      const email = localStorage.getItem('anchor_email') || '';
       const initial = name !== 'there' ? name[0].toUpperCase() : 'A';
       document.getElementById('greetName').textContent = name;
       document.getElementById('sidebarName').textContent = name;
       document.getElementById('avatarInitial').textContent = initial;
       document.getElementById('profileName').value = name === 'there' ? '' : name;
       document.getElementById('profileFocus').value = profileFocus;
+      const roleEl = document.querySelector('.user-role');
+      if (roleEl) roleEl.textContent = email || 'Anchor member';
     }
 
     function saveProfile() {
@@ -646,6 +1396,7 @@
       profileFocus = focusValue;
       loadUser();
       switchPage(null, 'dashboard');
+      showToast('Profile saved', { error: false, duration: 4000 });
     }
 
     function getSmartTasks(goal) {
@@ -718,44 +1469,94 @@
       ];
     }
 
-    function generatePlan() {
+    async function generatePlan() {
       const input = document.getElementById('goalInput');
       const goal = input.value.trim();
 
       if (!goal) {
         input.focus();
         input.style.borderColor = '#e8694a';
-        setTimeout(() => input.style.borderColor = '', 1200);
+        setTimeout(() => (input.style.borderColor = ''), 1200);
         return;
       }
 
       const btn = document.getElementById('generateBtn');
+      const loadingRow = document.getElementById('loadingRow');
       btn.disabled = true;
-      document.getElementById('loadingRow').classList.add('visible');
+      loadingRow.classList.add('visible');
 
-      setTimeout(() => {
-        tasks = getSmartTasks(goal);
-        completed = new Set();
-        goalHistory.push({
-          goal,
-          completed: 0,
-          total: tasks.length,
-          date: new Date().toLocaleString()
+      let stepsFromApi = null;
+      try {
+        const res = await fetch('/api/generate-plan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ goal })
         });
-        saveHistory();
-        renderHistory();
-        totalGoals++;
-        localStorage.setItem('anchor_goals', totalGoals);
-        document.getElementById('statGoals').textContent = totalGoals;
-        document.getElementById('loadingRow').classList.remove('visible');
+        const raw = await res.text();
+        let data = {};
+        try {
+          data = raw ? JSON.parse(raw) : {};
+        } catch (_e) {
+          data = {};
+        }
+        if (!res.ok) {
+          anchorLogEvent('goal_generate_http_error', { status: res.status, code: data.code });
+          showToast(data.error || data.message || 'Could not generate plan (' + res.status + ')', {
+            error: true,
+            duration: 0,
+            onRetry: () => generatePlan()
+          });
+          return;
+        }
+        anchorLogEvent('goal_generate_ok', { status: res.status });
+        const steps = data.steps || data.tasks;
+        if (Array.isArray(steps) && steps.length) {
+          stepsFromApi = steps.map((s) => (typeof s === 'string' ? s : String(s)));
+        }
+      } catch (e) {
+        anchorLogEvent('goal_generate_network_error', { message: String(e && e.message) });
+        showToast('Network error while generating your plan. Your goal is still in the box — try again.', {
+          error: true,
+          duration: 0,
+          onRetry: () => generatePlan()
+        });
+        return;
+      } finally {
+        loadingRow.classList.remove('visible');
         btn.disabled = false;
-        document.getElementById('goalLabel').textContent = goal.length > 50 ? goal.slice(0, 50) + '…' : goal;
-        renderTasks();
-        updateProgress();
-        updateFeedback();
-        document.getElementById('tasksSection').classList.add('visible');
-        input.value = '';
-      }, 900);
+      }
+
+      tasks = stepsFromApi && stepsFromApi.length ? stepsFromApi : getSmartTasks(goal);
+      completed = new Set();
+      const gid =
+        typeof crypto !== 'undefined' && crypto.randomUUID
+          ? crypto.randomUUID()
+          : 'g-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
+      currentGoalId = gid;
+      goalHistory.push({
+        id: gid,
+        title: goal,
+        goal,
+        dueDate: null,
+        priority: 'medium',
+        tags: inferTagsFromTitle(goal),
+        status: 'active',
+        completed: 0,
+        total: tasks.length,
+        date: new Date().toLocaleString()
+      });
+      saveHistory();
+      renderHistory();
+      totalGoals++;
+      localStorage.setItem('anchor_goals', totalGoals);
+      document.getElementById('statGoals').textContent = totalGoals;
+      document.getElementById('goalLabel').textContent = goal.length > 50 ? goal.slice(0, 50) + '…' : goal;
+      renderTasks();
+      updateProgress();
+      updateFeedback();
+      document.getElementById('tasksSection').classList.add('visible');
+      input.value = '';
+      showToast('Plan ready', { error: false, duration: 4000 });
     }
 
     function renderTasks() {
@@ -790,10 +1591,13 @@
       }
       localStorage.setItem('anchor_done', totalDone);
       document.getElementById('statDone').textContent = totalDone;
-      if (goalHistory.length) {
-        goalHistory[goalHistory.length - 1].completed = completed.size;
-        saveHistory();
-        renderHistory();
+      if (currentGoalId) {
+        const gh = goalHistory.find((g) => g.id === currentGoalId);
+        if (gh) {
+          gh.completed = completed.size;
+          saveHistory();
+          renderHistory();
+        }
       }
       renderTasks();
       updateProgress();
@@ -832,6 +1636,65 @@
         card.classList.add('win');
       }
     }
+
+    const hs = document.getElementById('historySearch');
+    const hsort = document.getElementById('historySort');
+    if (hs) {
+      hs.addEventListener('input', (e) => {
+        historySearchQ = e.target.value;
+        renderHistory();
+      });
+    }
+    if (hsort) {
+      hsort.addEventListener('change', (e) => {
+        historySortVal = e.target.value;
+        renderHistory();
+      });
+    }
+    const tf = document.getElementById('tagFilters');
+    if (tf) {
+      tf.addEventListener('click', (e) => {
+        const b = e.target.closest('.tag-chip');
+        if (!b) return;
+        historyTagFilter = b.getAttribute('data-tag') || 'all';
+        renderHistory();
+      });
+    }
+
+    (function initMobileNav() {
+      const toggle = document.getElementById('navToggle');
+      const side = document.getElementById('mainSidebar');
+      const scrim = document.getElementById('navScrim');
+      if (!toggle || !side) return;
+      function closeNav() {
+        side.classList.remove('open');
+        if (scrim) {
+          scrim.classList.remove('visible');
+          scrim.setAttribute('aria-hidden', 'true');
+        }
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+      function openNav() {
+        side.classList.add('open');
+        if (scrim) {
+          scrim.classList.add('visible');
+          scrim.setAttribute('aria-hidden', 'false');
+        }
+        toggle.setAttribute('aria-expanded', 'true');
+      }
+      toggle.addEventListener('click', () => {
+        if (side.classList.contains('open')) closeNav();
+        else openNav();
+      });
+      if (scrim) scrim.addEventListener('click', closeNav);
+      document.querySelectorAll('.nav-item').forEach((n) => {
+        n.addEventListener('click', () => {
+          if (window.matchMedia('(max-width: 768px)').matches) closeNav();
+        });
+      });
+    })();
+
+    document.getElementById('anchorToastDismiss')?.addEventListener('click', hideToast);
 
     loadUser();
     renderHistory();

@@ -119,6 +119,30 @@
 
     .greeting span { color: var(--gold); font-style: italic; }
 
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logout-btn {
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 0.4rem 1rem;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .logout-btn:hover {
+      color: var(--text);
+      border-color: rgba(255,235,200,0.25);
+    }
+
     .streak-pill {
       display: flex;
       align-items: center;
@@ -444,6 +468,25 @@
   </style>
 </head>
 <body>
+  <script>
+    (function requireSession() {
+      var raw = localStorage.getItem("anchor_auth");
+      if (!raw) {
+        location.replace("/login.html?return=" + encodeURIComponent(location.pathname + location.search));
+        return;
+      }
+      try {
+        var s = JSON.parse(raw);
+        if (!s.expires_at || s.expires_at < Date.now()) {
+          localStorage.removeItem("anchor_auth");
+          location.replace("/login.html?return=" + encodeURIComponent(location.pathname + location.search));
+        }
+      } catch (_e) {
+        localStorage.removeItem("anchor_auth");
+        location.replace("/login.html?return=/dashboard.html");
+      }
+    })();
+  </script>
 
   <aside class="sidebar">
     <div class="logo">Anchor<span>.</span></div>
@@ -552,6 +595,13 @@
   </main>
 
   <script>
+    function anchorLogout() {
+      Object.keys(localStorage).forEach(function (k) {
+        if (k.indexOf("anchor_") === 0) localStorage.removeItem(k);
+      });
+      window.location.href = "/login.html";
+    }
+
     let tasks = [];
     let completed = new Set();
     let totalGoals = parseInt(localStorage.getItem('anchor_goals') || '0');
@@ -629,12 +679,15 @@
 
     function loadUser() {
       const name = localStorage.getItem('anchor_name') || 'there';
+      const email = localStorage.getItem('anchor_email') || '';
       const initial = name !== 'there' ? name[0].toUpperCase() : 'A';
       document.getElementById('greetName').textContent = name;
       document.getElementById('sidebarName').textContent = name;
       document.getElementById('avatarInitial').textContent = initial;
       document.getElementById('profileName').value = name === 'there' ? '' : name;
       document.getElementById('profileFocus').value = profileFocus;
+      const roleEl = document.querySelector('.user-role');
+      if (roleEl) roleEl.textContent = email || 'Anchor member';
     }
 
     function saveProfile() {

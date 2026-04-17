@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    { "source": "/features", "destination": "/landing.html" },
+    { "source": "/features/", "destination": "/landing.html" },
+    { "source": "/how", "destination": "/landing.html" },
+    { "source": "/how/", "destination": "/landing.html" },
+    { "source": "/signup", "destination": "/signup.html" },
+    { "source": "/signup/", "destination": "/signup.html" },
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/login/", "destination": "/login.html" }
+  ]
+}

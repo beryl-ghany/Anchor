@@ -26,6 +26,27 @@
 
     html { scroll-behavior: smooth; }
 
+    .skip-to-main {
+      position: absolute;
+      left: -9999px;
+      top: 0.75rem;
+      z-index: 200;
+      padding: 0.65rem 1.25rem;
+      background: var(--gold);
+      color: #0e0c0a;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: left 0.15s ease;
+    }
+
+    .skip-to-main:focus {
+      left: 1rem;
+      outline: 3px solid var(--cream);
+      outline-offset: 2px;
+    }
+
     body {
       font-family: 'Cabinet Grotesk', sans-serif;
       background: var(--bg);
@@ -609,16 +630,27 @@
   </style>
 </head>
 <body>
+  <a class="skip-to-main" href="#main-content">Skip to main content</a>
 
   <nav>
     <div class="nav-logo">Anchor<span>.</span></div>
     <ul class="nav-links">
-      <li><a href="#how">How it works</a></li>
-      <li><a href="#features">Features</a></li>
-      <li><a href="#" class="nav-cta" onclick="handleLogin(event)">Open app</a></li>
+      <li><a href="/how">How it works</a></li>
+      <li><a href="/features">Features</a></li>
+      <li><a href="/login.html">Log in</a></li>
+      <li><a href="/login.html" class="nav-cta" data-testid="cta-open-app">Open app</a></li>
     </ul>
   </nav>
 
+  <div class="mobile-auth-strip" aria-label="Quick account links">
+    <a href="/login.html">Email sign in</a>
+    <span style="color:var(--text-dim)">·</span>
+    <a href="/signup.html">Sign up</a>
+    <span style="color:var(--text-dim)">·</span>
+    <a href="/login.html?skip_test=1">Skip login (testing)</a>
+  </div>
+
+  <main id="main-content" tabindex="-1">
   <!-- HERO -->
   <section class="hero">
     <div class="hero-bg"></div>
@@ -635,15 +667,22 @@
       actually finish — one at a time.
     </p>
     <div class="hero-actions">
-      <a href="#" class="btn-primary" onclick="handleLogin(event)">
+      <a href="/signup.html" class="btn-primary" data-testid="cta-get-started">
         Get started free
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
           <path d="M3 7h8M7.5 3.5L11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </a>
-      <a href="#how" class="btn-ghost">See how it works</a>
+      <a href="/how" class="btn-ghost">See how it works</a>
     </div>
-    <p class="hero-note">Free to use &nbsp;·&nbsp; No credit card &nbsp;·&nbsp; Log in with Google</p>
+    <p class="hero-note">Free to use &nbsp;·&nbsp; No credit card</p>
+    <p class="hero-auth-row">
+      <a href="/login.html" class="hero-auth-link" data-testid="hero-email-login">Email / password sign in</a>
+      <span class="hero-auth-sep">·</span>
+      <a href="/signup.html" class="hero-auth-link">Create account</a>
+      <span class="hero-auth-sep">·</span>
+      <a href="/login.html?skip_test=1" class="hero-auth-link hero-auth-skip" data-testid="skip-login-testing">Skip login for testing</a>
+    </p>
     <div class="scroll-hint">
       <span>Scroll</span>
       <div class="scroll-line"></div>
@@ -810,10 +849,12 @@
           Continue with Google
         </a>
         <p class="cta-fine" id="ctaFine">Sign in with Google to open your dashboard</p>
-        <a class="test-link" href="/dashboard.html">Skip login for testing</a>
+        <a class="test-link" href="/login.html?skip_test=1" data-testid="skip-login-footer">Skip login for testing</a>
       </div>
     </div>
   </section>
+
+  </main>
 
   <footer>
     <div class="footer-logo">Anchor<span>.</span></div>
@@ -845,6 +886,20 @@
       const ctaFine = document.getElementById("ctaFine");
       if (isAuthenticated) {
         ctaFine.textContent = "Signed in. Opening dashboard...";
+        try {
+          const token = await auth0Client.getTokenSilently();
+          const exp = Date.now() + 50 * 60 * 1000;
+          localStorage.setItem(
+            "anchor_auth",
+            JSON.stringify({
+              access_token: token,
+              expires_at: exp,
+              provider: "google"
+            })
+          );
+        } catch (_e) {
+          /* continue */
+        }
         window.location.href = "/dashboard.html";
       }
     }
@@ -860,11 +915,38 @@
       });
     }
 
-    // smooth scroll for anchor links
+    function scrollToSectionFromPath() {
+      const path = window.location.pathname.replace(/\/$/, '') || '/';
+      if (path.endsWith('/features')) {
+        const el = document.getElementById('features');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else if (path.endsWith('/how')) {
+        const el = document.getElementById('how');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    // Path-based deep links (/features, /how) and hash on same document (e.g. landing.html#features)
+    scrollToSectionFromPath();
+    requestAnimationFrame(() => {
+      scrollToSectionFromPath();
+      setTimeout(scrollToSectionFromPath, 50);
+    });
+    window.addEventListener('hashchange', () => {
+      const id = window.location.hash.slice(1);
+      if (id) {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+
+    // smooth scroll for in-page #hash links (footer, etc.)
     document.querySelectorAll('a[href^="#"]').forEach(a => {
+      const href = a.getAttribute('href');
+      if (!href || href === '#') return;
       a.addEventListener('click', e => {
         e.preventDefault();
-        const target = document.querySelector(a.getAttribute('href'));
+        const target = document.querySelector(href);
         if (target) target.scrollIntoView({ behavior: 'smooth' });
       });
     });
