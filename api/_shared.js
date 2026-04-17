@@ -1,4 +1,6 @@
 const MAX_GOAL_LENGTH = 300;
+const MAX_NOTES_LENGTH = 2000;
+const seenGoalKeys = new Set();
 
 function setJsonHeaders(res) {
   res.setHeader("Content-Type", "application/json");
@@ -108,6 +110,74 @@ function handleGenerateRequest(req, res) {
       code: "GOAL_TOO_LARGE"
     });
   }
+
+  if (payload?.notes !== undefined) {
+    if (typeof payload.notes !== "string") {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid data type for notes. Expected string.",
+        code: "INVALID_NOTES_TYPE"
+      });
+    }
+
+    if (payload.notes.length > MAX_NOTES_LENGTH) {
+      return res.status(413).json({
+        success: false,
+        error: `Notes is too long. Max length is ${MAX_NOTES_LENGTH} characters.`,
+        code: "NOTES_TOO_LARGE"
+      });
+    }
+  }
+
+  if (payload?.priority !== undefined) {
+    if (typeof payload.priority !== "number" || Number.isNaN(payload.priority)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid data type for priority. Expected number.",
+        code: "INVALID_PRIORITY_TYPE"
+      });
+    }
+
+    if (payload.priority < 1 || payload.priority > 5) {
+      return res.status(400).json({
+        success: false,
+        error: "Priority must be between 1 and 5.",
+        code: "PRIORITY_OUT_OF_RANGE"
+      });
+    }
+  }
+
+  if (payload?.referenceUrl !== undefined) {
+    if (typeof payload.referenceUrl !== "string") {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid data type for referenceUrl. Expected string URL.",
+        code: "INVALID_URL_TYPE"
+      });
+    }
+
+    try {
+      // eslint-disable-next-line no-new
+      new URL(payload.referenceUrl);
+    } catch (_error) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid URL format in referenceUrl.",
+        code: "INVALID_URL"
+      });
+    }
+  }
+
+  const dedupeKey = goal.toLowerCase();
+  if (seenGoalKeys.has(dedupeKey)) {
+    return res.status(409).json({
+      success: false,
+      error: "Duplicate goal submission detected.",
+      code: "DUPLICATE_GOAL"
+    });
+  }
+
+  seenGoalKeys.add(dedupeKey);
 
   const steps = buildSteps(goal);
 
