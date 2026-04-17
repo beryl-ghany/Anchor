@@ -370,6 +370,77 @@
       0%, 100% { opacity: 1; }
       50% { opacity: 0.35; }
     }
+
+    .page-section { display: none; }
+    .page-section.active { display: block; }
+
+    .history-list, .profile-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.2rem;
+    }
+
+    .history-item {
+      padding: 0.9rem 0.2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .history-item:last-child { border-bottom: none; }
+
+    .history-goal {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+
+    .history-meta {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .profile-grid {
+      display: grid;
+      gap: 0.9rem;
+      max-width: 520px;
+    }
+
+    .profile-grid label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.3rem;
+      display: block;
+    }
+
+    .profile-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      padding: 0.75rem 0.9rem;
+      color: var(--text);
+      font-family: 'Cabinet Grotesk', sans-serif;
+    }
+
+    .save-btn {
+      width: fit-content;
+      background: var(--gold);
+      color: #0e0c0a;
+      border: none;
+      border-radius: 10px;
+      padding: 0.6rem 1rem;
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .empty-note {
+      color: var(--text-muted);
+      font-size: 0.86rem;
+      padding: 0.5rem 0.2rem;
+    }
   </style>
 </head>
 <body>
@@ -377,15 +448,15 @@
   <aside class="sidebar">
     <div class="logo">Anchor<span>.</span></div>
     <nav class="nav">
-      <a class="nav-item active" href="#">
+      <a class="nav-item active" href="#" data-page="dashboard" onclick="switchPage(event, 'dashboard')">
         <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor"/></svg>
         Dashboard
       </a>
-      <a class="nav-item" href="#">
+      <a class="nav-item" href="#" data-page="history" onclick="switchPage(event, 'history')">
         <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4"/><path d="M8 5v3.5l2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
         History
       </a>
-      <a class="nav-item" href="#">
+      <a class="nav-item" href="#" data-page="profile" onclick="switchPage(event, 'profile')">
         <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M2.5 13.5c0-3 2.5-4.5 5.5-4.5s5.5 1.5 5.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
         Profile
       </a>
@@ -401,13 +472,14 @@
 
   <main class="main">
     <div class="topbar">
-      <div class="greeting">Hey, <span id="greetName">there</span> 👋</div>
+      <div class="greeting" id="pageTitle">Hey, <span id="greetName">there</span> 👋</div>
       <div class="streak-pill">
         🔥 <span id="streakCount">0</span>-day streak
       </div>
     </div>
 
     <div class="content">
+      <section class="page-section active" id="page-dashboard">
       <div class="stats-row">
         <div class="stat-card">
           <div class="stat-label">Total logins</div>
@@ -449,6 +521,33 @@
           <span id="feedbackText">Ready when you are.</span>
         </div>
       </div>
+      </section>
+
+      <section class="page-section" id="page-history">
+        <div class="goal-card">
+          <div class="card-label">Goal history</div>
+          <div class="history-list" id="historyList"></div>
+        </div>
+      </section>
+
+      <section class="page-section" id="page-profile">
+        <div class="goal-card">
+          <div class="card-label">Profile</div>
+          <div class="profile-card">
+            <div class="profile-grid">
+              <div>
+                <label for="profileName">Display name</label>
+                <input id="profileName" class="profile-input" type="text" maxlength="40" />
+              </div>
+              <div>
+                <label for="profileFocus">Primary focus</label>
+                <input id="profileFocus" class="profile-input" type="text" maxlength="80" placeholder="Exams, internships, coding, capstone..." />
+              </div>
+              <button class="save-btn" onclick="saveProfile()">Save profile</button>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   </main>
 
@@ -457,6 +556,57 @@
     let completed = new Set();
     let totalGoals = parseInt(localStorage.getItem('anchor_goals') || '0');
     let totalDone = parseInt(localStorage.getItem('anchor_done') || '0');
+    let goalHistory = JSON.parse(localStorage.getItem('anchor_history') || '[]');
+    let profileFocus = localStorage.getItem('anchor_focus') || '';
+    let currentPage = 'dashboard';
+
+    function saveHistory() {
+      localStorage.setItem('anchor_history', JSON.stringify(goalHistory));
+    }
+
+    function switchPage(event, page) {
+      if (event) event.preventDefault();
+      currentPage = page;
+
+      document.querySelectorAll('.nav-item').forEach((item) => {
+        item.classList.toggle('active', item.dataset.page === page);
+      });
+
+      document.querySelectorAll('.page-section').forEach((section) => {
+        section.classList.remove('active');
+      });
+      document.getElementById(`page-${page}`).classList.add('active');
+
+      const title = document.getElementById('pageTitle');
+      if (page === 'dashboard') {
+        title.innerHTML = `Hey, <span id="greetName">${localStorage.getItem('anchor_name') || 'there'}</span> 👋`;
+      } else if (page === 'history') {
+        title.textContent = 'Goal history';
+      } else {
+        title.textContent = 'Profile settings';
+      }
+    }
+
+    function renderHistory() {
+      const list = document.getElementById('historyList');
+      if (!goalHistory.length) {
+        list.innerHTML = '<p class="empty-note">No goals yet. Generate your first plan from Dashboard.</p>';
+        return;
+      }
+
+      list.innerHTML = goalHistory
+        .slice()
+        .reverse()
+        .map((entry) => {
+          return `
+            <div class="history-item">
+              <div class="history-goal">${entry.goal}</div>
+              <div class="history-meta">${entry.completed} / ${entry.total} tasks done • ${entry.date}</div>
+            </div>
+          `;
+        })
+        .join('');
+    }
 
     function updateStreak() {
       const today = new Date().toDateString();
@@ -483,6 +633,19 @@
       document.getElementById('greetName').textContent = name;
       document.getElementById('sidebarName').textContent = name;
       document.getElementById('avatarInitial').textContent = initial;
+      document.getElementById('profileName').value = name === 'there' ? '' : name;
+      document.getElementById('profileFocus').value = profileFocus;
+    }
+
+    function saveProfile() {
+      const nameValue = document.getElementById('profileName').value.trim();
+      const focusValue = document.getElementById('profileFocus').value.trim();
+
+      localStorage.setItem('anchor_name', nameValue || 'there');
+      localStorage.setItem('anchor_focus', focusValue);
+      profileFocus = focusValue;
+      loadUser();
+      switchPage(null, 'dashboard');
     }
 
     function getSmartTasks(goal) {
@@ -573,6 +736,14 @@
       setTimeout(() => {
         tasks = getSmartTasks(goal);
         completed = new Set();
+        goalHistory.push({
+          goal,
+          completed: 0,
+          total: tasks.length,
+          date: new Date().toLocaleString()
+        });
+        saveHistory();
+        renderHistory();
         totalGoals++;
         localStorage.setItem('anchor_goals', totalGoals);
         document.getElementById('statGoals').textContent = totalGoals;
@@ -619,6 +790,11 @@
       }
       localStorage.setItem('anchor_done', totalDone);
       document.getElementById('statDone').textContent = totalDone;
+      if (goalHistory.length) {
+        goalHistory[goalHistory.length - 1].completed = completed.size;
+        saveHistory();
+        renderHistory();
+      }
       renderTasks();
       updateProgress();
       updateFeedback();
@@ -658,6 +834,7 @@
     }
 
     loadUser();
+    renderHistory();
     updateStreak();
     document.getElementById('statGoals').textContent = totalGoals;
     document.getElementById('statDone').textContent = totalDone;
